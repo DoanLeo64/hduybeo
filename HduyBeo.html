@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Latin Root Quiz - Multiple Choice</title>
+<style>
+  body { font-family: 'Segoe UI', sans-serif; text-align: center; margin-top: 50px; background-color: #f7f7f7; }
+  h1 { color: #333; }
+  .quiz-box {
+    background: white; 
+    display: inline-block;
+    padding: 20px; 
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  button {
+    display: block;
+    width: 200px;
+    margin: 10px auto;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background-color: #0078ff;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  button:hover { background-color: #005fcc; }
+  #result { margin-top: 20px; font-weight: bold; }
+  #visitCounter { font-size: 14px; color: #666; margin-top: 10px; }
+</style>
+</head>
+<body>
+  <h1>Latin Root Quiz</h1>
+  <div class="quiz-box">
+    <p id="question"></p>
+    <div id="choices"></div>
+    <p id="result"></p>
+    <button onclick="nextQuestion()">Next</button>
+  </div>
+
+  <!-- Bộ đếm lượt truy cập -->
+  <p id="visitCounter">Đang lấy số lượt...</p>
+
+<script>
+// ================= QUIZ CODE =================
+const questions = [
+  { root: "spect", correct: "look", options: ["carry", "look", "write", "hear"] },
+  { root: "scrib/script", correct: "write", options: ["speak", "build", "write", "run"] },
+  { root: "port", correct: "carry", options: ["hear", "carry", "see", "make"] },
+  { root: "dict", correct: "say, speak", options: ["touch", "say, speak", "move", "hear"] },
+  { root: "aud", correct: "hear", options: ["look", "write", "hear", "build"] },
+  { root: "fac/fic", correct: "make, do", options: ["touch", "build", "make, do", "see"] },
+  { root: "ced/cess", correct: "go, yield", options: ["carry", "go, yield", "speak", "hold"] },
+  { root: "tang/tact", correct: "touch", options: ["touch", "build", "see", "run"] },
+  { root: "ten/tain", correct: "hold", options: ["hear", "hold", "run", "speak"] },
+  { root: "pel/puls", correct: "drive, push", options: ["make", "drive, push", "write", "look"] }
+];
+
+let current = 0;
+let score = 0;
+
+function loadQuestion() {
+  const q = questions[current];
+  document.getElementById("question").textContent = `Gốc Latin "${q.root}" có nghĩa là gì?`;
+  const choicesDiv = document.getElementById("choices");
+  choicesDiv.innerHTML = "";
+  q.options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.textContent = opt;
+    btn.onclick = () => checkAnswer(opt);
+    choicesDiv.appendChild(btn);
+  });
+  document.getElementById("result").textContent = "";
+}
+
+function checkAnswer(selected) {
+  const q = questions[current];
+  const result = document.getElementById("result");
+  if (selected === q.correct) {
+    result.textContent = "✅ Chuẩn, mày giỏi vãi!";
+    score++;
+  } else {
+    result.textContent = `❌ Sai rồi, đáp án đúng là "${q.correct}".`;
+  }
+  document.querySelectorAll("#choices button").forEach(b => b.disabled = true);
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= questions.length) {
+    document.querySelector(".quiz-box").innerHTML = `<h2>Kết thúc quiz!</h2><p>Điểm của mày: ${score}/${questions.length}</p>`;
+    return;
+  }
+  loadQuestion();
+}
+
+loadQuestion();
+
+// ================= COUNTER CODE =================
+const namespace = 'camlatin';
+const key = 'latin-quiz';
+
+async function hitCount() {
+  try {
+    const res = await fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`);
+    if (!res.ok) throw new Error('CountAPI lỗi');
+    const data = await res.json();
+    document.getElementById('visitCounter').textContent = `Lượt truy cập: ${data.value}`;
+  } catch (err) {
+    console.warn('CountAPI lỗi:', err);
+    document.getElementById('visitCounter').textContent = 'Không lấy được lượt';
+  }
+}
+
+window.addEventListener('load', hitCount);
+</script>
+
+</body>
+</html>
